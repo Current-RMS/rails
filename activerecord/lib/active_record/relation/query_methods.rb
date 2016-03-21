@@ -882,6 +882,7 @@ module ActiveRecord
     def build_arel
       arel = Arel::SelectManager.new(table.engine, table)
 
+      @alias_tracker = ActiveRecord::Associations::AliasTracker.create(@klass.connection, [])
       build_joins(arel, joins_values.flatten) unless joins_values.empty?
       build_left_outer_joins(arel, left_outer_joins_values.flatten) unless left_outer_joins_values.empty?
 
@@ -1076,7 +1077,8 @@ module ActiveRecord
       join_dependency = ActiveRecord::Associations::JoinDependency.new(
         @klass,
         association_joins,
-        join_list
+        join_list,
+        @alias_tracker
       )
 
       join_infos = join_dependency.join_constraints stashed_association_joins, join_type
